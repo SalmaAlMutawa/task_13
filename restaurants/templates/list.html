@@ -26,35 +26,44 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item text-center">
                 <a href="{% url 'restaurant-detail' restaurant.id %}" class="btn btn-outline-dark">View</a>
-                <button class = "btn" onclick = "favorite({{restaurant.id}})"><i id = "button-{{restaurant.id}}" class="fas fa-star {% if restaurant.id in favorite_list %}text-warning{% endif %}"></i></button>
+
+                <button class="btn" onclick="favorite({{restaurant.id}})"><i id ="button-{{restaurant.id}}" class="fas fa-star {% if restaurant.id in my_favs %}text-warning{% endif %}"></i></button>
+
             </li>
           </ul>
         </div>
     </div>
     {% endfor %}
 </div>
+
+<script>
+
+  function favorite(restaurant_id)
+  {
+    let button_id = "#button-"+restaurant_id;
+    console.log(button_id);
+    $.ajax(
+    {
+      type: "GET",
+      url: '/restaurants/'+restaurant_id+"/favorite/",
+      success: function(data){
+        if (data.action === "favorite"){
+          console.log(data.action);
+          $(button_id).addClass('text-warning')
+        }
+        else{
+          console.log("nope")
+          $(button_id).removeClass('text-warning')
+        }
+      },
+      error: function(){
+        alert ("Something went wrong, please try again.")
+      }
+    }
+
+    );
+  }
+</script>
 {% endblock content %}
 
 
-<script>
-  function favorite(restaurant.id)
-  {
-    let button_id = "#button-"+restaurant.id
-    %.ajax(
-    {
-      type = "GET",
-      url = '/restaurants/'+id+"/favorite/",
-      success = function(data)
-        if (data.action === "favorite"){
-          $(button_id).addClass('text-warning')}
-        else{
-          $(button_id.removeClass('text-warning'))
-        }
-        }
-
-    }
-    )
-
-
-  }
-</script>>

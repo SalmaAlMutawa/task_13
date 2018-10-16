@@ -3,19 +3,20 @@ from .models import Restaurant, Item, FavoriteRestaurant
 from .forms import RestaurantForm, ItemForm, SignupForm, SigninForm
 from django.contrib.auth import login, authenticate, logout
 from django.db.models import Q
+from django.http import JsonResponse
 
 # This view will be used to favorite a restaurant
 def restaurant_favorite(request, restaurant_id):
 	restaurant_obj = Restaurant.objects.get(id = restaurant_id)
 	if request.user.is_anonymous:
-        return redirect('signin')
+		return redirect('signin')
 
 	favorite, created = FavoriteRestaurant.objects.get_or_create(restaurant = restaurant_obj, user = request.user)
 	if created:
 		action = "favorite"
 	else:
 		action = "unfavorite"
-		favorite_obj.delete()
+		favorite.delete()
 
 	data = {
 		"action" : action
@@ -26,9 +27,13 @@ def restaurant_favorite(request, restaurant_id):
 
 # This view will be used to display only restaurants a user has favorited
 def favorite_restaurants(request):
+	if request.user.is_authenticated:
+		my_favs = [favorite.restaurant.id for favorite in request.user.favoriterestaurant_set.all()]
+	context = {
+		"my_favs" : my_favs,
+	}
 	
-	
-	return
+	return render (request, 'fav.html', context)
 
 
 def no_access(request):
@@ -83,14 +88,15 @@ def restaurant_list(request):
 				Q (ocner__username__icontains = query)
 			).distinct()
 	
-	if user.is_authenticated():
-		my_favs = [favorite.restaurant.id for favorite in request.user.favorite_set.all()]
+	my_favs = []
+	if request.user.is_authenticated:
+		my_favs = [favorite.restaurant.id for favorite in request.user.favoriterestaurant_set.all()]
 
 	context = {
 	   "restaurants": restaurants,
 	   "my_favs": my_favs,
 	}
-	return render(request, restaurant_id, 'list.html', context)
+	return render(request, 'list.html', context)
 
 
 def restaurant_detail(request, restaurant_id):
