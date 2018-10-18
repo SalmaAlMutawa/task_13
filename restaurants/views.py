@@ -28,7 +28,7 @@ def restaurant_favorite(request, restaurant_id):
 # This view will be used to display only restaurants a user has favorited
 def favorite_restaurants(request):
 	if request.user.is_authenticated:
-		my_favs = [favorite.restaurant.id for favorite in request.user.favoriterestaurant_set.all()]
+		my_favs = [favorite.restaurant for favorite in request.user.favoriterestaurant_set.all()]
 	context = {
 		"my_favs" : my_favs,
 	}
